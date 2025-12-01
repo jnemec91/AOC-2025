@@ -1,3 +1,4 @@
+#pylint: disable=W0123
 """
 solution to day one challenge of AOC25
 """
@@ -21,23 +22,21 @@ class DialSolver:
 
         # password is number of times dial points at zero
         self.password: int = 0
+        self.second_try: int = 0
 
     def solve(self) -> int:
         """
         solves the dial of elf safe.
         """
         for i in self.instructions:
-            n = eval(f"{self.number}{'-' if i[0] == 'L' else '+'}{i[1::]}") #pylint: disable=W0123
+            n = eval(f"{self.number}{'-' if i[0] == 'L' else '+'}{i[1::]}")%100
 
-            while n > 99:
-                n -= 100
-
-            while n < 0:
-                n += 100
+            if n == 0:
+                self.password += 1
 
             self.number = n
-            if self.number == 0:
-                self.password += 1
+
+
 
         return self.password
 
@@ -50,4 +49,4 @@ if __name__ == '__main__':
 
     ds = DialSolver(data.splitlines(), 50)
     solution = ds.solve()
-    print(f'Solution for the first part is {solution}.')
+    print(f'Example solution for the first part is {solution}.')
