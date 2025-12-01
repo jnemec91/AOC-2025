@@ -24,7 +24,7 @@ class DialSolver:
         self.password: int = 0
         self.second_try: int = 0
 
-    def solve(self) -> int:
+    def solve(self) -> tuple[int, int]:
         """
         solves the dial of elf safe.
         """
@@ -34,11 +34,13 @@ class DialSolver:
             if n == 0:
                 self.password += 1
 
-            self.number = n
+            # part two
+            for _ in range(int(i[1::])):
+                self.number = eval(f"{self.number}{'-' if i[0] == 'L' else '+'}{1}")%100
+                if self.number == 0:
+                    self.second_try += 1
 
-
-
-        return self.password
+        return self.password, self.second_try
 
 
 if __name__ == '__main__':
@@ -49,4 +51,5 @@ if __name__ == '__main__':
 
     ds = DialSolver(data.splitlines(), 50)
     solution = ds.solve()
-    print(f'Example solution for the first part is {solution}.')
+    print(f'Example solution for the first part is {solution[0]}.')
+    print(f'Example solution for the first part is {solution[1]}.')
