@@ -1,3 +1,6 @@
+"""
+This script helps Elves to find invalid IDs in their gift shop computer.
+"""
 import os
 import re
 
@@ -32,10 +35,11 @@ def solve_part_two(ranges: list[str]) -> int:
 
 
 if __name__ == '__main__':
-    with open(
-    os.path.join(os.path.dirname(__file__), 'inputs', 'input.txt'), 'r', encoding='UTF-8'
-    ) as file:
-        data = file.read().split(',')
-
-    print(solve(data))
-    print(solve_part_two(data))
+    for filename in ['test_input', 'input']:
+        with open(
+        os.path.join(os.path.dirname(__file__), 'inputs', f'{filename}.txt'), 'r', encoding='UTF-8'
+        ) as file:
+            data = file.read().split(',')
+        print(f'Solving {filename}.txt')
+        print(f'Result for part one is: {solve(data)}')
+        print(f'Result for part two is: {solve_part_two(data)}\n')
