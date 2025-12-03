@@ -3,7 +3,6 @@ Picks the right batteries from bank.
 """
 
 import os
-from itertools import combinations
 
 def solve(banks: list[str]) -> int:
     """
@@ -26,10 +25,8 @@ def solve(banks: list[str]) -> int:
         
         if max_b is None:
             total += int(f'{max_a}{max_val}')
-            # print(f'adding {max_a}{max_val}')
         else:
             total += int(f'{max_val}{max_b}')
-            # print(f'adding {max_val}{max_b}')
 
     return total
 
