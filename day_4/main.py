@@ -2,8 +2,8 @@
 Helps you optimize forklift workflow for rearanging rolls of paper.
 """
 import os
-import time
 from typing import Self
+import pygame
 
 class RollOfPaper:
     """
@@ -19,13 +19,13 @@ class RollOfPaper:
         # top-left, top-middle, top-right, left, right, bottom-left, bottom-middle, bottom-right
         self.idx : tuple[int,int] = idx
         self.neighbours : list[str | RollOfPaper] = []
-    
+
     def __repr__(self) -> str:
         return f'RollOfPaper{self.idx}'
-    
+
     def __str__(self) -> str:
         return '#' if self.count_neighbour_rolls() < 4 else "@"
-    
+
     def get_neighbours(self, grid : list[str]) -> Self:
         """
         Gets neighbours from the grid.
@@ -65,23 +65,40 @@ class RollOfPaper:
 
 
 
-def solve(grid : list[str]) -> int:
+def solve(grid : list[list[str]], cell_size : int = 5) -> int:
     """
     Helps to solve mess in printing department by optimizing workflow for forklifts.
     """
+    #pygame setup
+    height : int = len(grid)
+    width : int = len(grid[0])
+    pygame.init() #pylint: disable=no-member
+    pygame.display.set_caption("Advent of Code Day 4")
+    screen : pygame.Surface = pygame.display.set_mode((width * cell_size, height * cell_size))
+    animating : bool = True
+    scroll_color : pygame.color = pygame.Color("white")
+    empty_color : pygame.color = pygame.Color("darkblue")
+    clock : pygame.time.Clock = pygame.time.Clock()
 
+    # Convert initial grid to RollOfPaper objects
     for il, line in enumerate(grid):
         for ic, column in enumerate(line):
             if column  == '@':
                 grid[il][ic] = RollOfPaper((ic, il))
-    
+
+
     total_movable_rolls : None | int = None
     can_be_removed : int = 0
     first_part : int = 0
 
-    while total_movable_rolls == None or total_movable_rolls > 0:
-        time.sleep(0.3)
-        os.system('cls')
+    while animating and (total_movable_rolls is None or total_movable_rolls > 0):
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: #pylint: disable=no-member
+                animating = False
+                pygame.quit() #pylint: disable=no-member
+                return first_part, can_be_removed
+
         roll_count : int = 0
         to_remove : list[tuple[int, int]] = [] # list of coordinates to rewrite as '.'
 
@@ -96,21 +113,42 @@ def solve(grid : list[str]) -> int:
                     if column.count_neighbour_rolls() < 4:
                         total_movable_rolls += 1
                         to_remove.append((il, ic))
-        
+
         # update the grid
         for coords in to_remove:
             grid[coords[0]][coords[1]] = '.'
-                        
-        # draw the grid and info
-        for line in grid:
-            print(" ".join([str(i) for i in line]))
+
+        # draw the grid
+        screen.fill(empty_color)
+        for il, line in enumerate(grid):
+            for ic, column in enumerate(line):
+                if isinstance(column, RollOfPaper):
+                    pygame.draw.rect(
+                        screen, scroll_color, pygame.Rect(
+                            ic * cell_size, il * cell_size, cell_size, cell_size
+                            )
+                        )
+                else:
+                    pygame.draw.rect(
+                        screen, empty_color, pygame.Rect(
+                            ic * cell_size, il * cell_size, cell_size, cell_size
+                            )
+                        )
 
         can_be_removed += total_movable_rolls
         if first_part == 0:
             first_part = total_movable_rolls
 
-        print(f'Last step removed {total_movable_rolls}. Total of rolls can be removed is {can_be_removed}')
-        print(f'Roll count was: {roll_count}\n')
+        pygame.display.flip()
+        clock.tick(3)
+
+    # Keep window open
+    while animating:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: #pylint: disable=no-member
+                animating = False
+
+    pygame.quit() #pylint: disable=no-member
 
     return first_part, can_be_removed
 
@@ -124,5 +162,5 @@ if __name__ == '__main__':
             data = [[j for j in i] for i in data]
 
         print(f'Solving {filename}.txt')
-        solution = solve(data)
+        solution = solve(data, 15 if filename == 'test_input' else 7)
         print(f'Result for part one is: {solution[0]} and for second part {solution[1]}')
