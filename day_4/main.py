@@ -2,16 +2,19 @@
 Helps you optimize forklift workflow for rearanging rolls of paper.
 """
 import os
+import time
+from typing import Self
 
 class RollOfPaper:
     """
     Roll of paper
     
-    Should have neighbours on each of eight directions as params.
-    Should have method to check if four or less neighbours are rolls.
+    Attrs: 
+        idx: tuple[int, int] = index location in grid. Used to calculate neighbours in grid.
+        neighbours: list[RollOfPaper | str] = list of neighbours in each of 8 neighnbouring fields
+                    in grid.
     """
-    def __init__(self, idx : tuple) -> None:
-        # index in grid
+    def __init__(self, idx : tuple[int, int]) -> None:
         # neighbours will be a list aranged like so:
         # top-left, top-middle, top-right, left, right, bottom-left, bottom-middle, bottom-right
         self.idx : tuple[int,int] = idx
@@ -23,10 +26,11 @@ class RollOfPaper:
     def __str__(self) -> str:
         return '#' if self.count_neighbour_rolls() < 4 else "@"
     
-    def get_neighbours(self, grid : list[str]):
+    def get_neighbours(self, grid : list[str]) -> Self:
         """
         Gets neighbours from the grid.
         """
+        self.neighbours = [] # reset neighbours 
         directions : list[tuple[int, int]] = [
                 (self.idx[0] - 1, self.idx[1] - 1), # top left
                 (self.idx[0], self.idx[1] - 1), # top middle
@@ -45,8 +49,6 @@ class RollOfPaper:
                 self.neighbours.append(grid[direction[1]][direction[0]])
             except IndexError:
                 self.neighbours.append('_')
-        
-        # print(f'Neighbours({len(self.neighbours)}) for {repr(self)} are: {self.neighbours}')
 
         return self
 
@@ -54,33 +56,63 @@ class RollOfPaper:
         """
         counts number of rolls of paper in neighbours
         """
-        count = 0
+        count : int = 0
         for n in self.neighbours:
             if isinstance(n, RollOfPaper):
                 count += 1
-        # print(self, count)
+
         return count
 
 
 
 def solve(grid : list[str]) -> int:
+    """
+    Helps to solve mess in printing department by optimizing workflow for forklifts.
+    """
+
     for il, line in enumerate(grid):
         for ic, column in enumerate(line):
             if column  == '@':
                 grid[il][ic] = RollOfPaper((ic, il))
     
-    total_movable_rolls = 0
-    for il, line in enumerate(grid):
-        for ic, column in enumerate(line):
-            if isinstance(column, RollOfPaper):
-                column.get_neighbours(grid)
+    total_movable_rolls : None | int = None
+    can_be_removed : int = 0
+    first_part : int = 0
 
-                if column.count_neighbour_rolls() < 4:
-                    total_movable_rolls += 1
+    while total_movable_rolls == None or total_movable_rolls > 0:
+        time.sleep(0.3)
+        os.system('cls')
+        roll_count : int = 0
+        to_remove : list[tuple[int, int]] = [] # list of coordinates to rewrite as '.'
 
-    for line in grid:
-        print(" ".join([str(i) for i in line]))
-    return total_movable_rolls
+        total_movable_rolls = 0
+
+        # recalculate grid
+        for il, line in enumerate(grid):
+            for ic, column in enumerate(line):
+                if isinstance(column, RollOfPaper):
+                    column.get_neighbours(grid)
+                    roll_count += 1
+                    if column.count_neighbour_rolls() < 4:
+                        total_movable_rolls += 1
+                        to_remove.append((il, ic))
+        
+        # update the grid
+        for coords in to_remove:
+            grid[coords[0]][coords[1]] = '.'
+                        
+        # draw the grid and info
+        for line in grid:
+            print(" ".join([str(i) for i in line]))
+
+        can_be_removed += total_movable_rolls
+        if first_part == 0:
+            first_part = total_movable_rolls
+
+        print(f'Last step removed {total_movable_rolls}. Total of rolls can be removed is {can_be_removed}')
+        print(f'Roll count was: {roll_count}\n')
+
+    return first_part, can_be_removed
 
 
 if __name__ == '__main__':
@@ -90,6 +122,7 @@ if __name__ == '__main__':
         ) as file:
             data = file.read().splitlines()
             data = [[j for j in i] for i in data]
+
         print(f'Solving {filename}.txt')
-        print(f'Result for part one is: {solve(data)}')
-        # print(f'Result for part two is: {solve_part_two(data)}\n')
+        solution = solve(data)
+        print(f'Result for part one is: {solution[0]} and for second part {solution[1]}')
