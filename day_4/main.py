@@ -29,8 +29,10 @@ class RollOfPaper:
     def get_neighbours(self, grid : list[str]) -> Self:
         """
         Gets neighbours from the grid.
+        Params:
+            grid : list[list[str]] = 2D array, representing rancks with rolls of paper on them
         """
-        self.neighbours = [] # reset neighbours 
+        self.neighbours = [] # reset neighbours
         directions : list[tuple[int, int]] = [
                 (self.idx[0] - 1, self.idx[1] - 1), # top left
                 (self.idx[0], self.idx[1] - 1), # top middle
@@ -54,7 +56,7 @@ class RollOfPaper:
 
     def count_neighbour_rolls(self) -> int:
         """
-        counts number of rolls of paper in neighbours
+        Counts number of rolls of paper in neighbours
         """
         count : int = 0
         for n in self.neighbours:
@@ -68,6 +70,9 @@ class RollOfPaper:
 def solve(grid : list[list[str]], cell_size : int = 5) -> int:
     """
     Helps to solve mess in printing department by optimizing workflow for forklifts.
+    Params:
+        grid : list[list[str]] = 2D array, representing rancks with rolls of paper on them
+        cell_size : int = size of cells in pygame animation. Defaults at 5.
     """
     #pygame setup
     height : int = len(grid)
