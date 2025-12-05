@@ -1,5 +1,5 @@
 """
-Docstring for day_5.main
+Helps find fresh ingredients in cafeteria kitchen
 """
 import os
 
@@ -46,11 +46,9 @@ def solve(fresh_ranges : list[str], available_ids : list [str]) -> int:
 
     fresh : int = 0
     for i in available_ids:
-        found_in_ranges = []
         for j in combined_ranges:
             if int(i) in range(j[0], j[1]+1):
                 fresh += 1
-                found_in_ranges.append(j)
                 break
 
     return fresh
@@ -68,6 +66,25 @@ def solve_part_two(ranges : list[str]) -> int:
 
     return total_fresh
 
+def solve_redit_challenge(fresh_ranges : list[str], available_ids : list [str]) -> int:
+    """
+    finds all of items that are in two or more ranges. Based on post:
+    https://www.reddit.com/r/adventofcode/comments/1peyw7w/2025_day_5_part_3_superfresh_ingredients/
+    """
+    ranges = format_ranges(fresh_ranges)
+
+    fresh : int = 0
+    for i in available_ids:
+        found_in_ranges : int = 0
+        for j in ranges:
+            if int(i) in range(j[0], j[1]+1):
+                found_in_ranges += 1
+
+                if found_in_ranges >= 2:
+                    fresh += 1
+
+    return fresh
+
 if __name__ == '__main__':
     for filename in ['test_input', 'input']:
         with open(
@@ -79,5 +96,5 @@ if __name__ == '__main__':
 
         print(f'Solving {filename}.txt')
         print(f'Result for part one is: {solve(input_ranges, input_ids)}')
-        print(f'Solving {filename}.txt')
         print(f'Result for part two is: {solve_part_two(input_ranges)}')
+        print(f'Result for redit challenge is: {solve_redit_challenge(input_ranges, input_ids)}')
