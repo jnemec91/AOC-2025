@@ -3,7 +3,7 @@ Solve problems with tachyon manifolds
 """
 
 import os
-import time
+# import time
 from typing import Self
 
 class Node:
@@ -87,6 +87,7 @@ def convert_to_nodes(grid : list[list[str]]) -> tuple[list[list[Node]], Node]:
                 column.get_neighbours(grid)
 
     return grid, start_node
+
 def solve(grid : list[list[str]]) -> int:
     """
     Solves how light moves thru tachyon manifolds.
@@ -125,7 +126,7 @@ def solve_part_two(grid: list[list[str]]) -> int:
     """
     grid, start_node = convert_to_nodes(grid)
 
-    memo = {}
+    memo : dict[tuple[int, int], int] = {}
 
     def go_down(node : Node | str) -> int:
         """
@@ -140,7 +141,7 @@ def solve_part_two(grid: list[list[str]]) -> int:
         if not node.has_beam:
             node.has_beam = True
 
-        total_paths = 0
+        total_paths : int = 0
 
         if node.is_splitter:
             left, right = node.neighbours[3], node.neighbours[4]
@@ -164,6 +165,7 @@ def solve_part_two(grid: list[list[str]]) -> int:
     possible_paths = go_down(start_node) + 1 # +1 for starting node
 
     return possible_paths
+
 
 if __name__ == '__main__':
     os.system('cls')
